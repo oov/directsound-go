@@ -16,11 +16,11 @@ var (
 )
 
 func DirectSoundEnumerate(dsEnumCallback func(guid *GUID, description string, module string) bool) error {
-	return dllDSResult(procDirectSoundEnumerate.Call(syscall.NewCallback(func(guid *GUID, description uintptr, module uintptr, context uintptr) int {
+	return dllDSResult(procDirectSoundEnumerate.Call(syscall.NewCallback(func(guid *GUID, description *[maxInt >> 1]uint16, module *[maxInt >> 1]uint16, context uintptr) int {
 		b := dsEnumCallback(
 			guid,
-			syscall.UTF16ToString((*[1024]uint16)(unsafe.Pointer(description))[:]),
-			syscall.UTF16ToString((*[1024]uint16)(unsafe.Pointer(module))[:]),
+			syscall.UTF16ToString(description[:]),
+			syscall.UTF16ToString(module[:]),
 		)
 		if b {
 			return 1
@@ -30,11 +30,11 @@ func DirectSoundEnumerate(dsEnumCallback func(guid *GUID, description string, mo
 }
 
 func DirectSoundCaptureEnumerate(dsEnumCallback func(guid *GUID, description string, module string) bool) error {
-	return dllDSResult(procDirectSoundCaptureEnumerate.Call(syscall.NewCallback(func(guid *GUID, description uintptr, module uintptr, context uintptr) int {
+	return dllDSResult(procDirectSoundCaptureEnumerate.Call(syscall.NewCallback(func(guid *GUID, description *[maxInt >> 1]uint16, module *[maxInt >> 1]uint16, context uintptr) int {
 		b := dsEnumCallback(
 			guid,
-			syscall.UTF16ToString((*[1024]uint16)(unsafe.Pointer(description))[:]),
-			syscall.UTF16ToString((*[1024]uint16)(unsafe.Pointer(module))[:]),
+			syscall.UTF16ToString(description[:]),
+			syscall.UTF16ToString(module[:]),
 		)
 		if b {
 			return 1

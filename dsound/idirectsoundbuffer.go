@@ -220,33 +220,55 @@ func (dsb *IDirectSoundBuffer) Lock(offset uint32, bytes uint32, flags BufferLoc
 }
 
 func (dsb *IDirectSoundBuffer) LockBytes(offset uint32, bytes uint32, flags BufferLockFlag) ([]byte, []byte, error) {
-	ptr1, bytes1, ptr2, bytes2, err := dsb.Lock(offset, bytes, flags)
+	var ptr1, ptr2 *[maxInt]byte
+	var bytes1, bytes2 uint32
+	err := dsResult(dsb.v.Lock.Call(
+		uintptr(unsafe.Pointer(dsb)),
+		uintptr(offset),
+		uintptr(bytes),
+		uintptr(unsafe.Pointer(&ptr1)),
+		uintptr(unsafe.Pointer(&bytes1)),
+		uintptr(unsafe.Pointer(&ptr2)),
+		uintptr(unsafe.Pointer(&bytes2)),
+		uintptr(flags),
+	))
 	if err != nil {
 		return nil, nil, err
 	}
 
 	var buf1, buf2 []byte
-	if ptr1 != 0 && bytes1 > 0 {
-		buf1 = (*[maxInt]byte)(unsafe.Pointer(ptr1))[:bytes1]
+	if ptr1 != nil && bytes1 > 0 {
+		buf1 = ptr1[:bytes1]
 	}
-	if ptr2 != 0 && bytes2 > 0 {
-		buf2 = (*[maxInt]byte)(unsafe.Pointer(ptr2))[:bytes2]
+	if ptr2 != nil && bytes2 > 0 {
+		buf2 = ptr2[:bytes2]
 	}
 	return buf1, buf2, nil
 }
 
 func (dsb *IDirectSoundBuffer) LockInt16s(offset uint32, bytes uint32, flags BufferLockFlag) ([]int16, []int16, error) {
-	ptr1, bytes1, ptr2, bytes2, err := dsb.Lock(offset, bytes, flags)
+	var ptr1, ptr2 *[maxInt>>1]int16
+	var bytes1, bytes2 uint32
+	err := dsResult(dsb.v.Lock.Call(
+		uintptr(unsafe.Pointer(dsb)),
+		uintptr(offset),
+		uintptr(bytes),
+		uintptr(unsafe.Pointer(&ptr1)),
+		uintptr(unsafe.Pointer(&bytes1)),
+		uintptr(unsafe.Pointer(&ptr2)),
+		uintptr(unsafe.Pointer(&bytes2)),
+		uintptr(flags),
+	))
 	if err != nil {
 		return nil, nil, err
 	}
 
 	var buf1, buf2 []int16
-	if ptr1 != 0 && bytes1 > 0 {
-		buf1 = (*[maxInt >> 1]int16)(unsafe.Pointer(ptr1))[:bytes1>>1]
+	if ptr1 != nil && bytes1 > 0 {
+		buf1 = ptr1[:bytes1>>1]
 	}
-	if ptr2 != 0 && bytes2 > 0 {
-		buf2 = (*[maxInt >> 1]int16)(unsafe.Pointer(ptr2))[:bytes2>>1]
+	if ptr2 != nil && bytes2 > 0 {
+		buf2 = ptr2[:bytes2>>1]
 	}
 	return buf1, buf2, nil
 }

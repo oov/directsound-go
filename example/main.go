@@ -218,7 +218,6 @@ func main() {
 	err = notif.SetNotificationPositions(notifies)
 	if err != nil {
 		panic(err)
-		return
 	}
 
 	err = secondaryBuf.Play(0, dsound.DSBPLAY_LOOPING)
